@@ -1,6 +1,7 @@
 package com.maiia.pro.service;
 
 import com.maiia.pro.EntityFactory;
+import com.maiia.pro.entity.Appointment;
 import com.maiia.pro.entity.Availability;
 import com.maiia.pro.entity.Practitioner;
 import com.maiia.pro.repository.AppointmentRepository;
@@ -185,6 +186,22 @@ class ProAvailabilityServiceTest {
                 startDate.plusMinutes(20),
                 startDate.plusMinutes(35)));
 
+        Availability availability1 = new Availability();
+        availability1.setStartDate(startDate);
+        availability1.setEndDate(startDate.plusMinutes(25));
+        availability1.setPractitionerId(practitioner.getId());
+        Availability availability2 = new Availability();
+        availability2.setStartDate( startDate.plusMinutes(35));
+        availability2.setEndDate(startDate.plusMinutes(45));
+        availability2.setPractitionerId(practitioner.getId());
+        Availability availability3 = new Availability();
+        availability3.setStartDate(startDate.plusMinutes(50));
+        availability3.setEndDate(startDate.plusMinutes(70));
+        availability3.setPractitionerId(practitioner.getId());
+        availabilityRepository.save(availability1);
+        availabilityRepository.save(availability2);
+        availabilityRepository.save(availability3);
+
         List<Availability> availabilities = proAvailabilityService.generateAvailabilities(practitioner.getId());
 
         assertEquals(3, availabilities.size());
@@ -195,5 +212,18 @@ class ProAvailabilityServiceTest {
         expectedStartDate.add(startDate.plusMinutes(35));
         expectedStartDate.add(startDate.plusMinutes(50));
         assertTrue(availabilitiesStartDate.containsAll(expectedStartDate));
+    }
+
+    @Test
+    void checkAppointementList(){
+        Practitioner practitioner = practitionerRepository.save(entityFactory.createPractitioner());
+        LocalDateTime startDate = LocalDateTime.of(2020, Month.FEBRUARY, 5, 11, 0, 0);
+        Appointment appointment = entityFactory.createAppointment(practitioner.getId(),
+                patient_id,
+                startDate.plusMinutes(30),
+                startDate.plusMinutes(45));
+        appointmentRepository.save(appointment);
+        List<Appointment> appointmentList = appointmentRepository.findAll();
+        assertTrue(appointmentList.contains(appointment));
     }
 }
