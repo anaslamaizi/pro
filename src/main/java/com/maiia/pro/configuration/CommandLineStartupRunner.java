@@ -1,11 +1,11 @@
 package com.maiia.pro.configuration;
 
-import com.maiia.pro.entity.Patient;
-import com.maiia.pro.entity.Practitioner;
-import com.maiia.pro.entity.TimeSlot;
+import com.maiia.pro.entity.*;
+import com.maiia.pro.repository.AvailabilityRepository;
 import com.maiia.pro.repository.PatientRepository;
 import com.maiia.pro.repository.PractitionerRepository;
 import com.maiia.pro.repository.TimeSlotRepository;
+import com.maiia.pro.service.ProAvailabilityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +28,13 @@ public class CommandLineStartupRunner implements CommandLineRunner {
     private PractitionerRepository practitionerRepository;
     @Autowired
     private TimeSlotRepository timeSlotRepository;
+
+    @Autowired
+    private AvailabilityRepository availabilityRepository;
+
+
+    @Autowired
+    private ProAvailabilityService proAvailabilityService;
 
     @Override
     public void run(String... args) {
@@ -64,8 +71,19 @@ public class CommandLineStartupRunner implements CommandLineRunner {
                 speciality="dentist";
             }
             practitioner.setSpeciality(speciality);
-            practitionerRepository.save(practitioner);
+            practitioner = practitionerRepository.save(practitioner);
             timeSlotRepository.saveAll(timeSlotList);
+            Availability availability1 = new Availability();
+            availability1.setPractitionerId(practitioner.getId());
+            availability1.setStartDate(timeSlot1.getStartDate());
+            availability1.setEndDate(timeSlot1.getEndDate());
+            availabilityRepository.save(availability1);
+            Availability availability2 = new Availability();
+            availability2.setPractitionerId(practitioner.getId());
+            availability2.setStartDate(timeSlot2.getStartDate());
+            availability2.setEndDate(timeSlot2.getEndDate());
+            availabilityRepository.save(availability2);
+            proAvailabilityService.generateAvailabilities(practitioner.getId());
         }
         log.info("------------------created patients---------------- " + patientRepository.findAll());
         log.info("------------------created practitioners---------------- " + practitionerRepository.findAll());
